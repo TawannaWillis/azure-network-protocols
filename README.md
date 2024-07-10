@@ -57,6 +57,50 @@ Create the second VM/VM2 using Ubuntu Server 20.04 LTS, following a similar proc
 <img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
 </p>
 <p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+After connecting to the Windows VM or VM1 via Remote Desktop Connection using its public IP, install Wireshark to inspect network traffic. In Wireshark, filter for ICMP traffic and use PowerShell to ping the Ubuntu VM (VM2) using its private IP address and google.com. Then, execute a perpetual ping to VM2 using the command "ping -t [IP address]" to observe network security group behavior. I also applied a security rule to the Ubuntu VM's network settings in Azure to block ICMP traffic, making sure the new rule took precedence over SSH with a priority over (300) Back on the Windows VM, I saw the ping attempts failing, confirming the block was working. Then, I allowed ICMP traffic again by removing the security rule, and perpetual ping resolved without timing out. 
+
+
 </p>
 <br />
+<p>
+<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+</p>
+
+Next, I decided to examine SSH traffic. I logged into the Ubuntu server using PowerShell's ssh command and filtered Wireshark traffic with `tcp.port == 22`. Every command I executed on the Ubuntu server was captured in Wireshark, allowing me to monitor the session in real-time.
+
+</p>
+<br />
+<p>
+<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+</p>
+
+I logged out of the Ubuntu server to focus on DHCP traffic. To generate some activity, I ran the `ipconfig /renew` command on my VM, which briefly disconnected me while requesting a new IP address. After reconnecting, I could see the DHCP traffic captured in Wireshark, giving me a clear view of the process.
+
+</p>
+<br />
+<p>
+<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+</p>
+
+
+
+
+
+To examine DNS traffic, I applied the filter `udp.port == 53` in Wireshark. Using the command prompt, I executed `nslookup` queries for google.com and disney.com. This allowed me to observe the DNS lookup process for these popular domains, with Wireshark displaying the corresponding queries and responses in real-time.
+
+
+</p>
+<br />
+<p>
+<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+</p>
+
+Rounding out my lab, I observed RDP traffic using the Wireshark filter `tcp.port == 3389`. This filter captured continuous traffic since RDP constantly transmits data to provide a live stream from my personal computer to the Azure-hosted VM.
+
+
+<h2>Key Takeaways</h2>
+
+
+I gained a practical and hands on understanding of cloud networking with this lab, by setting up Windows and Ubuntu VMs in Azure. Using Wireshark, I got to see various network protocols in action - from basic pings to SSH connections. I played around with security rules, watching how they affected traffic between my VMs. I gained a much needed visual understanding on how DHCP, DNS, and RDP work behind the scenes. By the end, I felt like I'd gotten a real taste of what it's like to manage and secure a cloud network. 
+
+
